@@ -39,7 +39,7 @@ public class ReceiptKeeperBot extends TelegramLongPollingBot {
             }
             else if (isCommand(message)) {
                 String msgText = message.getText();
-                Command command = getCommand(msgText);
+                Command command = parse(msgText);
                 reply = new CommandHandler(command, user).getReply();
             }
             else if (isSimpleMessage(message)) {
@@ -107,26 +107,14 @@ public class ReceiptKeeperBot extends TelegramLongPollingBot {
         }
     }
 
-    private Command getCommand(String commandName){
-        Command command;
-        switch (commandName){
-            case "/start" : command = Command.START;
-                break;
-            case "/help" : command = Command.HELP;
-                break;
-            case "/getcode" : command = Command.GET_CODE;
-                break;
-            case "/getlast" : command = Command.GET_LAST;
-                break;
-            case "/getweek" : command = Command.GET_WEEK;
-                break;
-            case "/getmonth" : command = Command.GET_MONTH;
-                break;
-            default: command = Command.COMMAND_UNKNOWN;
-                break;
+    public static Command parse(String name) {
+        for (Command value : Command.values()) {
+            if (value.getName().equals(name))
+                return value;
         }
-        return command;
+        return Command.UNKNOWN_COMMAND;
     }
+
     @Override
     public String getBotUsername() {
         return getPropertyByKey("BotName");

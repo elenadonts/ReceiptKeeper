@@ -29,22 +29,23 @@ public class CommandHandler {
                 break;
             case GET_MONTH: replyText = getMonthStats();
                 break;
-            case COMMAND_UNKNOWN: default: replyText = "Unknown command";
+            default: replyText = "Unknown command";
                 break;
         }
         return formReply(replyText);
     }
 
     private String getMonthStats() {
-        return null;
+
+        throw new UnsupportedOperationException();
     }
 
     private String getWeekStats() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     private String getLastReceipt() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     private String getUserCode() {
