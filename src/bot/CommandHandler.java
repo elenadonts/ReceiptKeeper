@@ -36,7 +36,6 @@ public class CommandHandler {
     }
 
     private String getMonthStats() {
-
         throw new UnsupportedOperationException();
     }
 

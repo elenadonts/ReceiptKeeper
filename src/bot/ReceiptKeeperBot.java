@@ -1,5 +1,7 @@
 package bot;
 
+import globals.GLOBALS;
+import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.GetFile;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.*;
@@ -10,47 +12,66 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 
 public class ReceiptKeeperBot extends TelegramLongPollingBot {
 
-    private static final String ROOT_FILE_URL = "https://api.telegram.org/file/";
+    private static final Logger log = Logger.getLogger(ReceiptKeeperBot.class.getName());
+
+    @Override
+    public String getBotUsername() {
+        return getBotPropertyByKey("BotName");
+    }
 
     @Override
     public String getBotToken() {
-        return getPropertyByKey("BotToken");
+        return getBotPropertyByKey("BotToken");
     }
 
     @Override
     public void onUpdateReceived(Update update) {
-        SendMessage reply = null;
+        if (!update.hasMessage()) return;
 
-        if (update.hasMessage()) {
-            Message message = update.getMessage();
-            User user = message.getFrom();
+        Message message = update.getMessage();
+        User user = message.getFrom();
 
-            if (isPicture(message)){
-                reply = processPhotoAndGetResult(update, user);
-                //process, save result to db and send to user
-                //reply = processed result
-            }
-            else if (isCommand(message)) {
-                String msgText = message.getText();
-                Command command = parse(msgText);
-                reply = new CommandHandler(command, user).getReply();
-            }
-            else if (isSimpleMessage(message)) {
-                //any other text that can be sent to bot?
-                //reply = some reply
-                reply = new SendMessage()
-                        .setChatId(String.valueOf(user.getId()))
-                        .setText("This bot is not smart yet");
-            }
+        if (isPicture(message)){
+            sendReplyToUser(handlePicture(user, update));
+            return;
         }
-        sendReplyToUser(reply);
+        if (isCommand(message)) {
+            sendReplyToUser(handleCommand(user, message));
+            return;
+        }
+        if (isSimpleMessage(message)) {
+            sendReplyToUser(handleSimpleMessage(user, message));
+            return;
+        }
+    }
+
+    private SendMessage handlePicture(User user, Update update){
+        SendMessage result = null;
+        String imageUrl = getImageUrl(update);
+        try {
+            InputStream is = new URL(imageUrl).openStream();
+            BufferedImage image = ImageIO.read(is);
+            result = new PictureHandler(image, user).getReply();
+        } catch (IOException e) {
+            log.error(e);
+        }
+        return result;
+    }
+
+    private SendMessage handleCommand(User user, Message message){
+        String msgText = message.getText();
+        Command command = parse(msgText);
+        return new CommandHandler(command, user).getReply();
+    }
+
+    private SendMessage handleSimpleMessage(User user, Message message){
+        return new SimpleMessageHandler(message, user).getReply();
     }
 
     private boolean isSimpleMessage(Message message){
@@ -62,74 +83,51 @@ public class ReceiptKeeperBot extends TelegramLongPollingBot {
     }
 
     private boolean isCommand(Message message){
-        return message.hasText() && message.getText().charAt(0) == '/';
-    }
-
-    private SendMessage processPhotoAndGetResult(Update update, User user){
-        SendMessage result = null;
-        String imageUrl = getImageUrl(update);
-        try {
-            InputStream is = new URL(imageUrl).openStream();
-            BufferedImage image = ImageIO.read(is);
-            ImageIO.write(image,"jpg", new File("img.jpg"));
-
-            result = new SendMessage()
-                    .setChatId(String.valueOf(user.getId()))
-                    .setText("Picture received");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return result;
+        return message.hasText() && message.getText().charAt(0) == GLOBALS.COMMAND_FIST_SYMBOL;
     }
 
     private String getImageUrl(Update update){
-        String botToken = getPropertyByKey("BotToken");
+        String botToken = getBotPropertyByKey("BotToken");
         String filePath = "";
         List<PhotoSize> photoSizes = update.getMessage().getPhoto();
         String fileId = photoSizes.get(photoSizes.size()-1).getFileId();//getting the largest photo
-        GetFile getFile = new GetFile();
-        getFile.setFileId(fileId);
+        GetFile getFile = new GetFile().setFileId(fileId);
 
         try {
             org.telegram.telegrambots.api.objects.File file = execute(getFile);
             filePath = file.getFilePath();
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error(e);
         }
-        return ROOT_FILE_URL + "bot" + botToken + '/' + filePath;
+        return GLOBALS.ROOT_FILE_URL + GLOBALS.BOT + botToken + GLOBALS.PATH_SEPARATOR + filePath;
     }
 
     private void sendReplyToUser(SendMessage sendMessage){
         try {
-            execute(sendMessage); // Call method to send the message
+            execute(sendMessage);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error(e);
         }
     }
 
-    public static Command parse(String name) {
+    private static Command parse(String name) {
         for (Command value : Command.values()) {
-            if (value.getName().equals(name))
+            if (value.getName().equals(name.toLowerCase()))
                 return value;
         }
         return Command.UNKNOWN_COMMAND;
     }
 
-    @Override
-    public String getBotUsername() {
-        return getPropertyByKey("BotName");
-    }
-
-    private static String getPropertyByKey(String key){
+    private static String getBotPropertyByKey(String key){
         Properties properties = new Properties();
         try {
-            FileInputStream inputStream = new FileInputStream(("config/bot/bot.properties"));
+            FileInputStream inputStream = new FileInputStream((GLOBALS.BOT_PROPERTIES_PATH));
             properties.load(inputStream);
             return properties.getProperty(key);
         }
         catch (IOException e){
-            e.printStackTrace();
+            log.error(e);
         }
-        return null;
+        throw new IllegalArgumentException();
     }
 }
