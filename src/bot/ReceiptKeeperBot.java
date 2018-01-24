@@ -37,7 +37,7 @@ public class ReceiptKeeperBot extends TelegramLongPollingBot {
         Message message = update.getMessage();
         User user = message.getFrom();
 
-        if (isPicture(message)){
+        if (isPicture(message) || isDocument(message)){
             sendReplyToUser(handlePicture(user, update));
             return;
         }
@@ -82,15 +82,26 @@ public class ReceiptKeeperBot extends TelegramLongPollingBot {
         return message.hasPhoto();
     }
 
+    private boolean isDocument(Message message) { return message.hasDocument();}
+
     private boolean isCommand(Message message){
         return message.hasText() && message.getText().charAt(0) == GLOBALS.COMMAND_FIST_SYMBOL;
     }
 
     private String getImageUrl(Update update){
+        Message message = update.getMessage();
+
         String botToken = getBotPropertyByKey("BotToken");
-        String filePath = "";
-        List<PhotoSize> photoSizes = update.getMessage().getPhoto();
-        String fileId = photoSizes.get(photoSizes.size()-1).getFileId();//getting the largest photo
+        String filePath = "", fileId = "";
+        if (isDocument(message)){
+            Document pictureInDocument = message.getDocument();
+            fileId = pictureInDocument.getFileId();
+        }
+        if (isPicture(message)){
+            List<PhotoSize> photoSizes = update.getMessage().getPhoto();
+            fileId = photoSizes.get(photoSizes.size()-1).getFileId();//getting the largest photo
+        }
+
         GetFile getFile = new GetFile().setFileId(fileId);
 
         try {
