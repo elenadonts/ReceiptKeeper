@@ -14,7 +14,7 @@ public class DBConnection {
 
     private static DBConnection instance;
     private Connection connection;
-    private static final Logger log = Logger.getLogger(DBConnection.class.getName());
+    private static final Logger log = Logger.getLogger(DBConnection.class);
 
     private DBConnection() throws SQLException {
         try {

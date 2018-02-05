@@ -1,11 +1,13 @@
 package bot;
 
 import db.DBRecord;
+import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.User;
 
-public class CommandHandler {
+public class CommandHandler implements ReceivedDataHandler {
 
+    private static Logger log = Logger.getLogger(CommandHandler.class);
     private Command command;
     private User user;
 
@@ -15,6 +17,7 @@ public class CommandHandler {
     }
 
     public SendMessage getReply(){
+        log.info(command + " command executing");
         String replyText;
         switch (command){
             case START: replyText = getStartMessage();
@@ -32,7 +35,7 @@ public class CommandHandler {
             default: replyText = "Unknown command";
                 break;
         }
-        return formReply(replyText);
+        return composeReply(replyText);
     }
 
     private String getMonthStats() {
@@ -66,7 +69,7 @@ public class CommandHandler {
         return "Hi, " + user.getFirstName() + "! Send me a receipt and I will save it for you.";
     }
 
-    private SendMessage formReply(String messageText){
+    private SendMessage composeReply(String messageText){
         return new SendMessage()
                 .setChatId(String.valueOf(user.getId()))
                 .setText(messageText);

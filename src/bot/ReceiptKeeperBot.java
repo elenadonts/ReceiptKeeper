@@ -18,7 +18,7 @@ import java.util.Properties;
 
 public class ReceiptKeeperBot extends TelegramLongPollingBot {
 
-    private static final Logger log = Logger.getLogger(ReceiptKeeperBot.class.getName());
+    private static final Logger log = Logger.getLogger(ReceiptKeeperBot.class);
 
     @Override
     public String getBotUsername() {
@@ -57,7 +57,7 @@ public class ReceiptKeeperBot extends TelegramLongPollingBot {
         try {
             InputStream is = new URL(imageUrl).openStream();
             BufferedImage image = ImageIO.read(is);
-            result = new PictureHandler(image, user).getReply();
+            result = new ImageHandler(image, user).getReply();
         } catch (IOException e) {
             log.error(e);
         }
@@ -82,7 +82,9 @@ public class ReceiptKeeperBot extends TelegramLongPollingBot {
         return message.hasPhoto();
     }
 
-    private boolean isDocument(Message message) { return message.hasDocument();}
+    private boolean isDocument(Message message) {
+        return message.hasDocument();
+    }
 
     private boolean isCommand(Message message){
         return message.hasText() && message.getText().charAt(0) == GLOBALS.COMMAND_FIST_SYMBOL;

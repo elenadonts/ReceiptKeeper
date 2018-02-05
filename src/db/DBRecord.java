@@ -9,7 +9,7 @@ import java.sql.SQLException;
 public class DBRecord {
 
     private static Connection connection;
-    private static final Logger log = Logger.getLogger(DBRecord.class.getName());
+    private static final Logger log = Logger.getLogger(DBRecord.class);
 
     static {
         try {
