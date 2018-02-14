@@ -20,22 +20,44 @@ public class CommandHandler implements ReceivedDataHandler {
         log.info(command + " command executing");
         String replyText;
         switch (command){
-            case START: replyText = getStartMessage();
+            case START : replyText = getStartMessage();
                 break;
             case HELP: replyText = getHelpMessage();
                 break;
-            case GET_CODE: replyText = getUserCode();
+            case EDIT_LAST_BUTTON:
+            case EDIT: replyText = getEditedReplyText();
                 break;
+            case GET_LAST_BUTTON:
             case GET_LAST: replyText = getLastReceipt();
                 break;
+            case GET_WEEK_BUTTON:
             case GET_WEEK: replyText = getWeekStats();
                 break;
+            case GET_MONTH_BUTTON:
             case GET_MONTH: replyText = getMonthStats();
                 break;
+            case SILPO_ATB_BUTTON:
+            case SILPO_ATB: replyText = setSilpoATBFontAndGetReply();
+                break;
+            case KOSHIK_SAMMARKET_BUTTON:
+            case KOSHIK_SAMMARKET: replyText = setKoshikSAMFontAndGetReply();
+            break;
             default: replyText = "Unknown command";
                 break;
         }
         return composeReply(replyText);
+    }
+
+    private String setKoshikSAMFontAndGetReply() {
+        throw new UnsupportedOperationException();
+    }
+
+    private String setSilpoATBFontAndGetReply() {
+        throw new UnsupportedOperationException();
+    }
+
+    private String getEditedReplyText() {
+        throw new UnsupportedOperationException();
     }
 
     private String getMonthStats() {
@@ -48,10 +70,6 @@ public class CommandHandler implements ReceivedDataHandler {
 
     private String getLastReceipt() {
         throw new UnsupportedOperationException();
-    }
-
-    private String getUserCode() {
-        return "Your personal code is " + user.getId();
     }
 
     private String getHelpMessage() {

@@ -5,6 +5,9 @@ import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.GetFile;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.*;
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
@@ -13,12 +16,32 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
 public class ReceiptKeeperBot extends TelegramLongPollingBot {
 
     private static final Logger log = Logger.getLogger(ReceiptKeeperBot.class);
+    private static ReplyKeyboardMarkup replyKeyboardMarkup;
+
+    static {
+        List<String> firstRowNames = new ArrayList<>(Arrays.asList("/Silpo&ATB", "/Koshik&SAM-Market"));
+        List<String> secondRowNames = new ArrayList<>(Arrays.asList("/Edit Last", "/Get Last"));
+        List<String> thirdRowNames = new ArrayList<>(Arrays.asList("/Get Week", "/Get Month"));
+        KeyboardRow firstRow = new KeyboardRow();
+        KeyboardRow secondRow = new KeyboardRow();
+        KeyboardRow thirdRow = new KeyboardRow();
+        for (int i = 0; i < firstRowNames.size(); i++) {
+            firstRow.add(firstRowNames.get(i));
+            secondRow.add(secondRowNames.get(i));
+            thirdRow.add(thirdRowNames.get(i));
+        }
+        List<KeyboardRow> keyboardButtons = new ArrayList<>(Arrays.asList(firstRow, secondRow, thirdRow));
+        replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        replyKeyboardMarkup.setKeyboard(keyboardButtons);
+    }
 
     @Override
     public String getBotUsername() {
@@ -66,6 +89,7 @@ public class ReceiptKeeperBot extends TelegramLongPollingBot {
 
     private SendMessage handleCommand(User user, Message message){
         String msgText = message.getText();
+
         Command command = parse(msgText);
         return new CommandHandler(command, user).getReply();
 
@@ -117,6 +141,7 @@ public class ReceiptKeeperBot extends TelegramLongPollingBot {
     }
 
     private void sendReplyToUser(SendMessage sendMessage){
+        sendMessage.setReplyMarkup(replyKeyboardMarkup);
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
