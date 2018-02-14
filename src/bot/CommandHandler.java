@@ -56,6 +56,8 @@ public class CommandHandler implements ReceivedDataHandler {
 
     private String getHelpMessage() {
         return "/help - See all commands\n" +
+                "/edit - Edit Total value of last receipt\n" +
+                "/choose - Choose АТБ/Сільпо - Кошик/САМ-Маркет. By default - last chosen\n" +
                 "/getcode - Get your authorization code\n" +
                 "/getlast - Get last receipt's details\n" +
                 "/getweek - Get your week stats\n" +
@@ -64,7 +66,7 @@ public class CommandHandler implements ReceivedDataHandler {
 
     private String getStartMessage() {
         if (!DBRecord.userExists(user)){
-            //add user
+            DBRecord.addNewUser(user);
         }
         return "Hi, " + user.getFirstName() + "! Send me a receipt and I will save it for you.";
     }

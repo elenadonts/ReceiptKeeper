@@ -68,6 +68,7 @@ public class ReceiptKeeperBot extends TelegramLongPollingBot {
         String msgText = message.getText();
         Command command = parse(msgText);
         return new CommandHandler(command, user).getReply();
+
     }
 
     private SendMessage handleSimpleMessage(User user, Message message){

@@ -2,6 +2,7 @@ package db;
 
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.objects.User;
+import processed.ProcessedReceipt;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -20,6 +21,14 @@ public class DBRecord {
         }
     }
     public static boolean userExists(User user){
-        return false;////////////////////////////////////////////////////////////////////
+        throw new UnsupportedOperationException();
     }
+    public static void addNewUser(User user){
+        throw new UnsupportedOperationException();
+
+    }
+    public static void addNewReceipt(User user, ProcessedReceipt receipt){
+        throw new UnsupportedOperationException();
+    }
+
 }
