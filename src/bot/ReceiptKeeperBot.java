@@ -6,7 +6,6 @@ import org.telegram.telegrambots.api.methods.GetFile;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.*;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -27,20 +26,9 @@ public class ReceiptKeeperBot extends TelegramLongPollingBot {
     private static ReplyKeyboardMarkup replyKeyboardMarkup;
 
     static {
-        List<String> firstRowNames = new ArrayList<>(Arrays.asList("/Silpo&ATB", "/Koshik&SAM-Market"));
-        List<String> secondRowNames = new ArrayList<>(Arrays.asList("/Edit Last", "/Get Last"));
-        List<String> thirdRowNames = new ArrayList<>(Arrays.asList("/Get Week", "/Get Month"));
-        KeyboardRow firstRow = new KeyboardRow();
-        KeyboardRow secondRow = new KeyboardRow();
-        KeyboardRow thirdRow = new KeyboardRow();
-        for (int i = 0; i < firstRowNames.size(); i++) {
-            firstRow.add(firstRowNames.get(i));
-            secondRow.add(secondRowNames.get(i));
-            thirdRow.add(thirdRowNames.get(i));
-        }
-        List<KeyboardRow> keyboardButtons = new ArrayList<>(Arrays.asList(firstRow, secondRow, thirdRow));
+        List<KeyboardRow> buttons = getKeyboardButtons();
         replyKeyboardMarkup = new ReplyKeyboardMarkup();
-        replyKeyboardMarkup.setKeyboard(keyboardButtons);
+        replyKeyboardMarkup.setKeyboard(buttons);
     }
 
     @Override
@@ -74,6 +62,20 @@ public class ReceiptKeeperBot extends TelegramLongPollingBot {
         }
     }
 
+    private static List<KeyboardRow> getKeyboardButtons() {
+        List<String> firstRowNames = new ArrayList<>(Arrays.asList("/Silpo&ATB", "/Koshik&SAM-Market"));
+        List<String> secondRowNames = new ArrayList<>(Arrays.asList("/Edit Last", "/Get Last"));
+        List<String> thirdRowNames = new ArrayList<>(Arrays.asList("/Get Week", "/Get Month"));
+        KeyboardRow firstRow = new KeyboardRow();
+        KeyboardRow secondRow = new KeyboardRow();
+        KeyboardRow thirdRow = new KeyboardRow();
+        for (int i = 0; i < firstRowNames.size(); i++) {
+            firstRow.add(firstRowNames.get(i));
+            secondRow.add(secondRowNames.get(i));
+            thirdRow.add(thirdRowNames.get(i));
+        }
+        return new ArrayList<>(Arrays.asList(firstRow, secondRow, thirdRow));
+    }
     private SendMessage handlePicture(User user, Update update){
         SendMessage result = null;
         String imageUrl = getImageUrl(update);
@@ -89,7 +91,6 @@ public class ReceiptKeeperBot extends TelegramLongPollingBot {
 
     private SendMessage handleCommand(User user, Message message){
         String msgText = message.getText();
-
         Command command = parse(msgText);
         return new CommandHandler(command, user).getReply();
 
@@ -151,7 +152,7 @@ public class ReceiptKeeperBot extends TelegramLongPollingBot {
 
     private static Command parse(String name) {
         for (Command value : Command.values()) {
-            if (value.getName().equals(name.toLowerCase()))
+            if (value.getName().toLowerCase().equals(name.toLowerCase()))
                 return value;
         }
         return Command.UNKNOWN_COMMAND;

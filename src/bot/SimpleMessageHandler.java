@@ -7,13 +7,10 @@ import org.telegram.telegrambots.api.objects.User;
 
 import java.text.SimpleDateFormat;
 
-//any other text that can be sent to bot?
-//reply = some reply
-
 public class SimpleMessageHandler implements ReceivedDataHandler {
 
     private Logger log = Logger.getLogger(SimpleMessageHandler.class);
-    private Message message;//Message message needed for reply
+    private Message message;
     private User user;
 
     public SimpleMessageHandler(Message message, User user) {
@@ -21,11 +18,23 @@ public class SimpleMessageHandler implements ReceivedDataHandler {
         this.user = user;
     }
     public SendMessage getReply(){
-        log.info("Simple message received");
-        //do something
+        if (CommandHandler.lastCommandExecuted == Command.EDIT_LAST_BUTTON ||
+                CommandHandler.lastCommandExecuted == Command.EDIT_LAST){
+            editLastReceiptDetails();
+            log.info("Last receipt edited");
+            return composeReply("Changes saved");
 
+        }
+        log.info("Simple message received");
+        return composeReply("Unknown command");
+    }
+
+    private void editLastReceiptDetails(){
+        //TODO:edit
+    }
+    private SendMessage composeReply(String messageText){
         return new SendMessage()
                 .setChatId(String.valueOf(user.getId()))
-                .setText("This bot is not smart yet");
+                .setText(messageText);
     }
 }

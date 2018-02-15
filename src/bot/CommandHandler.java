@@ -1,6 +1,8 @@
 package bot;
 
 import db.DBRecord;
+import globals.GLOBALS;
+import image.ImageRecognizer;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.User;
@@ -10,6 +12,7 @@ public class CommandHandler implements ReceivedDataHandler {
     private static Logger log = Logger.getLogger(CommandHandler.class);
     private Command command;
     private User user;
+    public static Command lastCommandExecuted = Command.START;
 
     public CommandHandler(Command command, User user) {
         this.command = command;
@@ -25,7 +28,7 @@ public class CommandHandler implements ReceivedDataHandler {
             case HELP: replyText = getHelpMessage();
                 break;
             case EDIT_LAST_BUTTON:
-            case EDIT: replyText = getEditedReplyText();
+            case EDIT_LAST: replyText = getEditedReplyText();
                 break;
             case GET_LAST_BUTTON:
             case GET_LAST: replyText = getLastReceipt();
@@ -45,19 +48,24 @@ public class CommandHandler implements ReceivedDataHandler {
             default: replyText = "Unknown command";
                 break;
         }
+        lastCommandExecuted = command;
         return composeReply(replyText);
     }
 
     private String setKoshikSAMFontAndGetReply() {
-        throw new UnsupportedOperationException();
+        ImageRecognizer.setFontFilesToUse(GLOBALS.KOSHIK_SAM_FONT);
+        return "Send me a receipt from Koshik or SAM-Market!";
     }
 
     private String setSilpoATBFontAndGetReply() {
-        throw new UnsupportedOperationException();
+        ImageRecognizer.setFontFilesToUse(GLOBALS.SILPO_ATB_FONT);
+        return "Send me a receipt from Silpo or ATB!";
     }
 
     private String getEditedReplyText() {
-        throw new UnsupportedOperationException();
+        return "Write total and date in format:\n"+
+                "0.0\n"+
+                "DD.MM.YYYY";
     }
 
     private String getMonthStats() {

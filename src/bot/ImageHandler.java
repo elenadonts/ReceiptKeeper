@@ -1,6 +1,6 @@
 package bot;
 
-import db.DBRecord;
+import globals.GLOBALS;
 import image.Image;
 import org.apache.log4j.Logger;
 import org.opencv.core.Core;
@@ -10,8 +10,7 @@ import org.telegram.telegrambots.api.objects.User;
 import processed.ProcessedReceipt;
 
 import java.awt.image.BufferedImage;
-import java.time.Clock;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 
 public class ImageHandler implements ReceivedDataHandler {
@@ -38,18 +37,11 @@ public class ImageHandler implements ReceivedDataHandler {
     }
 
     private SendMessage composeReply(ProcessedReceipt processedReceipt) {
-        LocalDateTime receiptDate = processedReceipt.getReceiptDate();
+        LocalDate receiptDate = processedReceipt.getReceiptDate();
         double total = processedReceipt.getTotal();
         return new SendMessage()
                 .setChatId(String.valueOf(user.getId()))
-                .setText("Total - " + total + '\n' + "Date - " + receiptDate.toString());
+                .setText("Total - " + total + '\n' + "Date - " + receiptDate.format(GLOBALS.USER_DATE_FORMAT));
 
     }
-
-
-
 }
-//process, save result to db and send to user ->
-//        checkImage();
-//        processImage();
-//        populateResults();
