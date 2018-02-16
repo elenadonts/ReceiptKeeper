@@ -78,6 +78,7 @@ public class CommandHandler implements ReceivedDataHandler {
 
     private String getLastReceipt() {
         throw new UnsupportedOperationException();
+
     }
 
     private String getHelpMessage() {

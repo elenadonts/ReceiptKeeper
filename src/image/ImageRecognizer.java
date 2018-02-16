@@ -5,7 +5,7 @@ package image;
 import globals.GLOBALS;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
-import processed.ProcessedReceipt;
+import processed.Receipt;
 
 import java.awt.image.BufferedImage;
 import java.time.LocalDate;
@@ -29,12 +29,12 @@ public class ImageRecognizer {
         this.image = image;
     }
 
-    public ProcessedReceipt process(){
+    public Receipt process(){
         String[] allReceiptLines = doOcr();
         double total = getTotal(allReceiptLines);
         LocalDate date = getDate(allReceiptLines);
 
-        return new ProcessedReceipt(date, total);
+        return new Receipt(date, total);
 
     }
     private double getTotal(String[] allReceiptLines){

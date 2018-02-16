@@ -1,5 +1,6 @@
 package bot;
 
+import db.DBRecord;
 import globals.GLOBALS;
 import image.Image;
 import org.apache.log4j.Logger;
@@ -7,7 +8,7 @@ import org.opencv.core.Core;
 
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.User;
-import processed.ProcessedReceipt;
+import processed.Receipt;
 
 import java.awt.image.BufferedImage;
 import java.time.LocalDate;
@@ -30,13 +31,13 @@ public class ImageHandler implements ReceivedDataHandler {
         log.info("Picture received");
         Image imageToProcess = new Image(image);
 
-        ProcessedReceipt result = imageToProcess.processAndGetResult();
-       // DBRecord.addNewReceipt(user, result);
+        Receipt result = imageToProcess.processAndGetResult();
+        DBRecord.addNewReceipt(user, result);
 
         return composeReply(result);
     }
 
-    private SendMessage composeReply(ProcessedReceipt processedReceipt) {
+    private SendMessage composeReply(Receipt processedReceipt) {
         LocalDate receiptDate = processedReceipt.getReceiptDate();
         double total = processedReceipt.getTotal();
         return new SendMessage()

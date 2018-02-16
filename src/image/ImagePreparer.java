@@ -15,7 +15,7 @@ public class ImagePreparer {
     private Mat image;
     private static final int PIXEL_NEIGHBOURHOOD = 21;
     private static final int MEAN_VALUE_FOR_CONTOURS = 3;
-    private static final int MEAN_VALUE_FOR_RECOGNITION = 7;
+    private static final int MEAN_VALUE_FOR_RECOGNITION = 15;
 
 
     public ImagePreparer(Mat image) {

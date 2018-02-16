@@ -3,7 +3,7 @@ package image;
 import org.apache.log4j.Logger;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import processed.ProcessedReceipt;
+import processed.Receipt;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -18,7 +18,7 @@ public class Image {
 
 
 
-    public ProcessedReceipt processAndGetResult() {
+    public Receipt processAndGetResult() {
         Mat original = bufferedImageToMat(image);
         ImagePreparer preparedImage = new ImagePreparer(original);
         Mat preparedMat = preparedImage.prepare();
@@ -26,7 +26,7 @@ public class Image {
 
         BufferedImage imageToRecognize = matToBufferedImage(preparedMat);
         ImageRecognizer recognizedImage = new ImageRecognizer(imageToRecognize);
-        ProcessedReceipt processedReceipt = recognizedImage.process();
+        Receipt processedReceipt = recognizedImage.process();
         log.info("Picture is recognized");
 
         return processedReceipt;

@@ -1,8 +1,9 @@
 package processed;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-public class ProcessedReceipt {
+public class Receipt {
 
     private LocalDate receiptDate;
     private double total;
@@ -15,7 +16,7 @@ public class ProcessedReceipt {
         return total;
     }
 
-    public ProcessedReceipt(LocalDate receiptDate, double total) {
+    public Receipt(LocalDate receiptDate, double total) {
         this.receiptDate = receiptDate;
         this.total = total;
     }
