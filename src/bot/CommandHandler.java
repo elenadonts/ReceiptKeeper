@@ -69,15 +69,15 @@ public class CommandHandler implements ReceivedDataHandler {
     }
 
     private String getMonthStats() {
-        throw new UnsupportedOperationException();
+        return DBRecord.Statistics.getMonthStats(user);
     }
 
     private String getWeekStats() {
-        throw new UnsupportedOperationException();
+        return DBRecord.Statistics.getWeekStats(user);
     }
 
     private String getLastReceipt() {
-        throw new UnsupportedOperationException();
+        return DBRecord.Statistics.getLastReceipt(user);
 
     }
 

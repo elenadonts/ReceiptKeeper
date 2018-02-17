@@ -1,5 +1,6 @@
 package db;
 
+import globals.GLOBALS;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.objects.User;
 import processed.Receipt;
@@ -12,6 +13,8 @@ public class DBRecord {
 
     private static Connection connection;
     private static final Logger log = Logger.getLogger(DBRecord.class);
+    private static final int DAYS_IN_A_MONTH = 31;
+    private static final int DAYS_IN_A_WEEK = 7;
 
     static {
         try {
@@ -39,16 +42,15 @@ public class DBRecord {
 
     public static void addNewUser(User user){
         String toAddNewUser = "INSERT INTO users (user_id, date_joined) VALUES (?, ?)";
-        LocalDate currentDate = LocalDate.now();
+        Timestamp now = Timestamp.valueOf(LocalDateTime.now());
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(toAddNewUser);
             preparedStatement.setString(1,user.getId().toString());
-            preparedStatement.setDate(2, Date.valueOf(currentDate));
+            preparedStatement.setTimestamp(2, now);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error(e);
         }
-
     }
 
     public static void addNewReceipt(User user, Receipt receipt){
@@ -62,7 +64,7 @@ public class DBRecord {
             preparedStatement.setTimestamp(4, now);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error(e);
         }
     }
 
@@ -75,7 +77,73 @@ public class DBRecord {
 
             addNewReceipt(user, editedReceipt);
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error(e);
+        }
+    }
+
+    public static class Statistics {
+
+        public static String getLastReceipt(User user) {
+            LocalDate date = null; double total = 0.0;
+            String toGetLastUserReceipt = "SELECT r_total, r_date FROM receipts WHERE " +
+                    "user_id = ? ORDER BY created_at DESC limit 1";
+            try {
+                PreparedStatement preparedStatement = connection.prepareStatement(toGetLastUserReceipt);
+                preparedStatement.setString(1, user.getId().toString());
+                ResultSet rs = preparedStatement.executeQuery();
+
+                while (rs.next()){
+                    total = rs.getDouble(1);
+                    date = rs.getDate(2).toLocalDate();
+                }
+            } catch (SQLException e) {
+                log.error(e);
+            }
+            String receiptDate = date.format(GLOBALS.USER_DATE_FORMAT);
+            return composeReply("Last - " + receiptDate, total);
+        }
+
+        public static String getWeekStats(User user){
+            LocalDate today = LocalDate.now();
+            LocalDate weekBefore = today.minusDays(DAYS_IN_A_WEEK);
+            double totalDuringPeriod = get(user, weekBefore, today);
+            String dateStart = weekBefore.format(GLOBALS.USER_DATE_FORMAT);
+            String dateEnd = today.format(GLOBALS.USER_DATE_FORMAT);
+            return composeReply("Week " + dateStart + " - " + dateEnd, totalDuringPeriod);
+        }
+
+        public static String getMonthStats(User user) {
+            LocalDate today = LocalDate.now();
+            LocalDate monthBefore = today.minusDays(DAYS_IN_A_MONTH);
+            double totalDuringPeriod = get(user, monthBefore, today);
+            String dateStart = monthBefore.format(GLOBALS.USER_DATE_FORMAT);
+            String dateEnd = today.format(GLOBALS.USER_DATE_FORMAT);
+            return composeReply("Month " + dateStart + " - " + dateEnd, totalDuringPeriod);
+        }
+
+        private static double get(User user, LocalDate from, LocalDate to) {
+            double total = 0.0;
+            String toGetLastWeekReceipts = "SELECT SUM(r_total) FROM receipts " +
+                    "WHERE user_id = ? AND r_date BETWEEN ? AND ?";
+            try {
+                PreparedStatement preparedStatement = connection.prepareStatement(toGetLastWeekReceipts);
+                preparedStatement.setString(1, user.getId().toString());
+                preparedStatement.setDate(2, Date.valueOf(from));
+                preparedStatement.setDate(3, Date.valueOf(to));
+                ResultSet rs = preparedStatement.executeQuery();
+                while (rs.next()) {
+                    total = rs.getDouble(1);
+                    System.out.println(total);
+                }
+            } catch (SQLException e) {
+                log.error(e);
+            }
+            return total;
+        }
+
+        private static String composeReply(String timePeriod, double moneySpent){
+            return "Time period: " + timePeriod + "\n" +
+                    "Money spent: " + moneySpent;
         }
     }
 }

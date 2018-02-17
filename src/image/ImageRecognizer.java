@@ -45,7 +45,13 @@ public class ImageRecognizer {
                 for (int i = 0; i < lineChars.length; i++){
                     if (Character.isDigit(lineChars[i])&& i > s.indexOf(GLOBALS.TOTAL)) totalBuilder.append(lineChars[i]);
                 }
-                return Double.parseDouble(totalBuilder.toString())/100;
+                try {
+                    double total = Double.parseDouble(totalBuilder.toString())/100;
+                    return total;
+                }
+                catch (NumberFormatException e){
+                    return 0.0;
+                }
             }
         }
         return 0.0;
