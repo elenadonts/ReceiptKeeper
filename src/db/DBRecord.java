@@ -5,6 +5,8 @@ import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.objects.User;
 import processed.Receipt;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -84,7 +86,7 @@ public class DBRecord {
     public static class Statistics {
 
         public static String getLastReceipt(User user) {
-            LocalDate date = null; double total = 0.0;
+            LocalDate date = LocalDate.now(); double total = 0.0;
             String toGetLastUserReceipt = "SELECT r_total, r_date FROM receipts WHERE " +
                     "user_id = ? ORDER BY created_at DESC limit 1";
             try {
@@ -106,7 +108,7 @@ public class DBRecord {
         public static String getWeekStats(User user){
             LocalDate today = LocalDate.now();
             LocalDate weekBefore = today.minusDays(DAYS_IN_A_WEEK);
-            double totalDuringPeriod = get(user, weekBefore, today);
+            double totalDuringPeriod = getTotalDuringPeriod(user, weekBefore, today);
             String dateStart = weekBefore.format(GLOBALS.USER_DATE_FORMAT);
             String dateEnd = today.format(GLOBALS.USER_DATE_FORMAT);
             return composeReply("Week " + dateStart + " - " + dateEnd, totalDuringPeriod);
@@ -115,13 +117,13 @@ public class DBRecord {
         public static String getMonthStats(User user) {
             LocalDate today = LocalDate.now();
             LocalDate monthBefore = today.minusDays(DAYS_IN_A_MONTH);
-            double totalDuringPeriod = get(user, monthBefore, today);
+            double totalDuringPeriod = getTotalDuringPeriod(user, monthBefore, today);
             String dateStart = monthBefore.format(GLOBALS.USER_DATE_FORMAT);
             String dateEnd = today.format(GLOBALS.USER_DATE_FORMAT);
             return composeReply("Month " + dateStart + " - " + dateEnd, totalDuringPeriod);
         }
 
-        private static double get(User user, LocalDate from, LocalDate to) {
+        private static double getTotalDuringPeriod(User user, LocalDate from, LocalDate to) {
             double total = 0.0;
             String toGetLastWeekReceipts = "SELECT SUM(r_total) FROM receipts " +
                     "WHERE user_id = ? AND r_date BETWEEN ? AND ?";
@@ -142,8 +144,11 @@ public class DBRecord {
         }
 
         private static String composeReply(String timePeriod, double moneySpent){
+            Double moneySpentTruncated = BigDecimal.valueOf(moneySpent)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .doubleValue();
             return "Time period: " + timePeriod + "\n" +
-                    "Money spent: " + moneySpent;
+                    "Money spent: " + moneySpentTruncated;
         }
     }
 }

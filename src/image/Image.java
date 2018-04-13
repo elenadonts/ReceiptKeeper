@@ -30,7 +30,6 @@ public class Image {
         log.info("Picture is recognized");
 
         return processedReceipt;
-
     }
 
     private static Mat bufferedImageToMat(BufferedImage bi) {

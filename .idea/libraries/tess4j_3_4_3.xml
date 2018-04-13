@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="tess4j-3.4.3">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/src/lib/tess4j-3.4.3.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -76,6 +76,7 @@ public class ReceiptKeeperBot extends TelegramLongPollingBot {
         }
         return new ArrayList<>(Arrays.asList(firstRow, secondRow, thirdRow));
     }
+
     private SendMessage handlePicture(User user, Update update){
         SendMessage result = null;
         String imageUrl = getImageUrl(update);
@@ -161,7 +162,7 @@ public class ReceiptKeeperBot extends TelegramLongPollingBot {
     private static String getBotPropertyByKey(String key){
         Properties properties = new Properties();
         try {
-            FileInputStream inputStream = new FileInputStream((GLOBALS.BOT_PROPERTIES_PATH));
+            FileInputStream inputStream = new FileInputStream(GLOBALS.BOT_PROPERTIES_PATH);
             properties.load(inputStream);
             return properties.getProperty(key);
         }
